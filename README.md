@@ -1,4 +1,4 @@
-# Your project name
-Your given and family name.
+# Samurai Sagas
+Molly Meyer
 
-A one-sentence description of your project.
+Samurai Sagas is a website that dives into the captivating legends of renowned Japanese samurai warriors.
