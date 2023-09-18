@@ -8,6 +8,7 @@
     "doc": "docs"
   },
   "scripts": {
+    "generate": "psql -U postgres -f ./docs/generated-schema.sql",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -20,6 +21,7 @@
     "stylelint-config-standard": "^34.0.0"
   },
   "dependencies": {
-    "express": "^4.18.2"
+    "express": "^4.18.2",
+    "node-html-parser": "^6.1.10"
   }
 }
