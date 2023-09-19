@@ -9,4 +9,4 @@ Link to Render site URL: https://samurai-sagas.onrender.com
 ## ER Diagram
 
 ![alt text](/docs/ER_Diagram.svg "ER Diagram")
-
+Marissa Smith can handle rejection.
