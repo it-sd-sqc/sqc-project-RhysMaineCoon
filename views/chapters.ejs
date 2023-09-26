@@ -1,0 +1,8 @@
+<ul>
+    <% chapters.forEach(chapter => { %>
+        <li><a href="/index/<%= chapter.id %>"><%= chapter.title %></a></li>
+    <% }); %>
+</ul>
+<h1><%= chapter.title %></h1>
+<p><%= chapter.content %></p>
+<a href="/index">View All Chapters</a>

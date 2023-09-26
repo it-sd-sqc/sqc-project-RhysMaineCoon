@@ -14,28 +14,38 @@ file.
 ***********************************************************/
 
 // Dependencies ////////////////////////////////////////////
-import { strict as assert } from 'node:assert'
-import { closeSync, openSync, readFileSync, writeFileSync }
-  from 'node:fs'
-import { parse } from 'node-html-parser'
+const fs = import('fs');
+const { parse } = import('node-html-parser');
 
-// This module uses the CommonJS module format, so we need
-// to import it differently.
-import pkg from 'svgoban'
-const { serialize } = pkg
+// Define the srcPath variable for the input HTML eBook file
+const srcPath = './Tales_of_Old_Japan_by_Algernon_Bertram_Freeman-Mitford_eBook.html';
 
-// Configuration ///////////////////////////////////////////
-const srcPath = 'data/book.html';
-const dstPath = 'docs/generated-schema.sql';
-const chapterIds = [
-  "preface",
-  'THE FORTY-SEVEN RÔNINS',
-  "KAZUMA'S REVENGE",
+// Read the HTML content from the file
+const htmlContent = fs.readFileSync(srcPath, 'utf8');
+
+// Parse the HTML content using node-html-parser
+const root = parse(htmlContent);
+
+// Initialize an array to store chapters
+const chapters = [
+  'KAZUMA\'S REVENGE',  // Story 1
+  'THE TONGUE-CUT SPARROW',  // Fairytale 1
+  'THE FOXES\' WEDDING'  // Fairytale 2
 ];
 
-//const problemChapterId = 'ch8'
+// Extract chapters using CSS selectors (adjust the selectors based on your HTML structure)
+root.querySelectorAll('h2').forEach((h2Element, index) => {
+  const chapterTitle = h2Element.text;
+  const chapterContent = h2Element.nextElementSibling.text;
+  chapters.push({
+    id: index + 1,
+    title: chapterTitle,
+    content: chapterContent,
+  });
+});
 
-const sqlHeader = `DROP TABLE IF EXISTS STORY;
+// Generate SQL statements
+const sqlStatements = `DROP TABLE IF EXISTS STORY;
 DROP TABLE IF EXISTS CATEGORY;
 
 CREATE TABLE CATEGORY (
@@ -48,225 +58,14 @@ CREATE TABLE STORY (
   title TEXT NOT NULL,
   content TEXT NOT NULL,
   category_id INT NOT NULL REFERENCES CATEGORY(category_id)
-);
+);`;
 
-`
+// Populate tables
+chapters.forEach((chapter) => {
+  sqlStatements += `INSERT INTO chapters (id, title, content) VALUES (${chapter.id}, '${chapter.title.replace(/'/g, "''")}', '${chapter.content.replace(/'/g, "''")}');\n`;
+});
 
-const insertProblemTypesSql = `INSERT INTO problem_types (name) VALUES
-`
+// Save the SQL statements to a file
+fs.writeFileSync('./docs/generated-schema.sql', sqlStatements);
 
-const insertProblemsSql = `INSERT INTO problems (problem_type_id,  number, to_play, problem, solutions) VALUES
-`
-
-const gobanConfig = {
-  size: 19,
-  theme: 'classic',
-  coordSystem: 'A1',
-  noMargin: false,
-  hideMargin: false
-}
-
-// Utility functions ///////////////////////////////////////
-const extractTitle = function (root, id) {
-  const title = root.querySelector(`#${id} .main`).text
-  return title
-}
-
-const extractBody = function (root, id, pruneChildrenSelector) {
-  const bodyNode = root.querySelector(`#${id} .divBody`)
-
-  if (pruneChildrenSelector) {
-    const children = bodyNode.querySelectorAll(pruneChildrenSelector)
-    children.forEach((child) => {
-      child.remove()
-    })
-  }
-
-  // The <img> tags point to the wrong directory, so we
-  // need to change them here.
-  bodyNode.querySelectorAll('img').forEach(
-    (image) => {
-      const oldSrc = image.getAttribute('src')
-      const oldSrcTokens = oldSrc.split('/')
-      const newSrc = `/images/book/${oldSrcTokens[oldSrcTokens.length - 1]}`
-      image.setAttribute('src', newSrc)
-    }
-  )
-
-  // Return HTML with the line endings normalized to Unix.
-  bodyNode.innerHTML = bodyNode.innerHTML.replaceAll('\r\n', '\n')
-  bodyNode.innerHTML = bodyNode.innerHTML.trim()
-  return bodyNode
-}
-
-const extractMoves = function (output, player, moveSrc) {
-  // Remove newline.
-  const withDots = moveSrc.trim()
-
-  // Remove periods.
-  const clean = withDots.replaceAll('.', '')
-
-  const lines = clean.split(', ')
-  let currentLetter
-
-  // Skip the first token.
-  for (let i = 1; i < lines.length; i++) {
-    if (lines[i].indexOf(' ') >= 0) {
-      const tokens = lines[i].split(' ')
-      currentLetter = tokens[0]
-      output[currentLetter + tokens[1]] = player
-    } else {
-      // The line only contains a number.
-      output[currentLetter + lines[i]] = player
-    }
-  }
-}
-
-const addSolution = function (problem, solutionSrc) {
-  const result = Object.assign({}, problem.moves)
-  const markers = {}
-  const noNewline = solutionSrc.replaceAll('\r\n', '')
-  const compact = noNewline.replaceAll(' ', '')
-
-  let move = 1
-  let who = problem.toPlay
-  const moves = compact.split(',')
-  moves.forEach((m) => {
-    result[m] = who
-    markers[m] = (move++).toString()
-    who = (who === 'white') ? 'black' : 'white'
-  })
-  problem.solutions.push(serialize(gobanConfig, result, markers))
-}
-
-// Conversion //////////////////////////////////////////////
-const src = readFileSync(srcPath, 'utf8')
-const domRoot = parse(src)
-
-// Remove pageNum nodes
-const pageNums = domRoot.querySelectorAll('.pageNum')
-pageNums.forEach(
-  (element) => element.remove()
-)
-
-// Extract guide chapters.
-const chapters = []
-
-chapterIds.forEach(
-  (id) => {
-    // Extract the title
-    const title = extractTitle(domRoot, id)
-    const body = extractBody(domRoot, id)
-
-    chapters.push({
-      title,
-      body
-    })
-  }
-)
-
-// Extract the problems…
-const pRoot = domRoot.querySelector(`#${problemChapterId} .divBody`)
-
-// First, extract the goals.
-const goals = []
-const goalNodes = pRoot.querySelectorAll('h3.main > span.sc')
-goalNodes.forEach((node) => { goals.push(node.text) })
-assert.equal(goals.length, 7, 'Expected seven goals.')
-
-// Second, extract each problem group that corresponds to a goal…
-const problemGroups = []
-
-const groupNodes = pRoot.querySelectorAll('.div3 > .divBody'); // .div2 > .divBody
-const iTagRegExp = /<\/?i>/
-let goalId = 1 // SQL ids start at 1.
-
-// …and then extract the problems from that group.
-groupNodes.forEach((node) => {
-  const problems = []
-  const descriptionNodes = node.querySelectorAll('p:not([class])')
-  descriptionNodes.forEach((n) => {
-    // All problem paragraphs have a single <br> tag.
-    if (!n.querySelector('br')) return
-
-    const number = n.querySelector('b').text
-    const toPlay = n.querySelector('i').text.toLowerCase()
-    const rows = n.innerHTML.replace(iTagRegExp, '')
-    const lines = rows.split('<br>')
-    const moves = {}
-    extractMoves(moves, 'white', lines[0])
-    extractMoves(moves, 'black', lines[1])
-    const svg = serialize(gobanConfig, moves, {})
-    problems.push({
-      goalId,
-      number,
-      toPlay,
-      moves,
-      problem: svg,
-      solutions: []
-    })
-  })
-  // Skip the answer section.
-  if (problems.length > 0) problemGroups.push(problems)
-  goalId++
-})
-assert.equal(problemGroups.length, 7, 'Expected seven problem groups.')
-
-// Finally, extract the solutions to each problem.
-const ors = /,? or /g
-const sRoots = pRoot.querySelectorAll('.div3')
-let groupId = 0
-sRoots.forEach((node) => {
-  const solutionNodes = node.querySelectorAll('p')
-  let problemId = 0
-  solutionNodes.forEach((n) => {
-    if (!problemGroups[groupId][problemId]) return
-
-    const noPeriods = n.text.split('.')
-    const solutions = noPeriods[1].split(ors)
-
-    solutions.forEach((s) => {
-      addSolution(problemGroups[groupId][problemId], s.trim())
-    })
-    problemId++
-  })
-
-  groupId++
-})
-
-// Extract problem chapter text after extracting the
-// problems since we destructively alter the DOM.
-chapters.push({
-  title: extractTitle(domRoot, problemChapterId),
-  body: extractBody(domRoot, problemChapterId, '.div2')
-})
-
-// Output the data as SQL.
-const fd = openSync(dstPath, 'w')
-writeFileSync(fd, sqlHeader)
-writeFileSync(fd, `('${chapters[0].title}', '${chapters[0].body}')`)
-chapters.slice(1).forEach((data) => {
-  const value = `,\n('${data.title}', '${data.body}')`
-  writeFileSync(fd, value)
-})
-writeFileSync(fd, ';\n\n')
-
-// Output the problem types.
-writeFileSync(fd, insertProblemTypesSql)
-writeFileSync(fd, `  ('${goals[0]}')`)
-goals.slice(1).forEach((data) => {
-  const value = `,\n  ('${data}')`
-  writeFileSync(fd, value)
-})
-writeFileSync(fd, ';\n\n')
-
-// Output the problems.
-problemGroups.forEach((problems) => {
-  writeFileSync(fd, insertProblemsSql)
-  writeFileSync(fd, `  (${problems[0].goalId}, '${problems[0].number}', '${problems[0].toPlay}', '${problems[0].problem}', '${problems[0].solutions.join('<p>OR</p>')}')`)
-  problems.forEach((problem) => {
-    writeFileSync(fd, `,\n  (${problem.goalId}, '${problem.number}', '${problem.toPlay}', '${problem.problem}', '${problem.solutions.join('<p>OR</p>')}')`)
-  })
-  writeFileSync(fd, ';\n\n')
-})
-closeSync(fd)
+console.log('SQL schema generated successfully!');
