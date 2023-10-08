@@ -1,5 +1,6 @@
 // Dependencies ////////////////////////////////////////////
 import 'dotenv/config'
+import dotenv from 'dotenv';
 import express from 'express'
 import pkg from 'pg'
 import { Pool } from 'pkg';
