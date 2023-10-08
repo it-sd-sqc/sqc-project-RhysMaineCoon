@@ -14,58 +14,64 @@ file.
 ***********************************************************/
 
 // Dependencies ////////////////////////////////////////////
-const fs = import('fs');
-const { parse } = import('node-html-parser');
+import { closeSync, openSync, readFileSync, writeFileSync } from 'node:fs';
+import { parse } from 'node-html-parser';
 
-// Define the srcPath variable for the input HTML eBook file
-const srcPath = './Tales_of_Old_Japan_by_Algernon_Bertram_Freeman-Mitford_eBook.html';
+// Configuration ///////////////////////////////////////////
+const srcPath = 'data/book.html';
+const dstPath = 'docs/generated-schema.sql';
 
-// Read the HTML content from the file
-const htmlContent = fs.readFileSync(srcPath, 'utf8');
+const sqlHeader = `DROP TABLE IF EXISTS chapters;
 
-// Parse the HTML content using node-html-parser
-const root = parse(htmlContent);
-
-// Initialize an array to store chapters
-const chapters = [
-  'KAZUMA\'S REVENGE',  // Story 1
-  'THE TONGUE-CUT SPARROW',  // Fairytale 1
-  'THE FOXES\' WEDDING'  // Fairytale 2
-];
-
-// Extract chapters using CSS selectors (adjust the selectors based on your HTML structure)
-root.querySelectorAll('h2').forEach((h2Element, index) => {
-  const chapterTitle = h2Element.text;
-  const chapterContent = h2Element.nextElementSibling.text;
-  chapters.push({
-    id: index + 1,
-    title: chapterTitle,
-    content: chapterContent,
-  });
-});
-
-// Generate SQL statements
-const sqlStatements = `DROP TABLE IF EXISTS STORY;
-DROP TABLE IF EXISTS CATEGORY;
-
-CREATE TABLE CATEGORY (
-  category_id SERIAL PRIMARY KEY,
-  name TEXT NOT NULL
+CREATE TABLE chapters (
+  id SERIAL PRIMARY KEY,
+  title TEXT NOT NULL,
+  body TEXT NOT NULL
 );
 
-CREATE TABLE STORY (
-  story_id SERIAL PRIMARY KEY,
-  title TEXT NOT NULL,
-  content TEXT NOT NULL,
-  category_id INT NOT NULL REFERENCES CATEGORY(category_id)
-);`;
+INSERT INTO chapters (title, body) VALUES
+`;
 
-// Populate tables
-chapters.forEach((chapter) => {
-  sqlStatements += `INSERT INTO chapters (id, title, content) VALUES (${chapter.id}, '${chapter.title.replace(/'/g, "''")}', '${chapter.content.replace(/'/g, "''")}');\n`;
+// Utility functions ///////////////////////////////////////
+const extractTitle = function (root, id) {
+  const titleNode = root.querySelector(`#${id} h2 span.titlefont`);
+  return titleNode ? titleNode.text : '';
+};
+
+const extractBody = function (root, id) {
+  const bodyNode = root.querySelector(`#${id}`);
+  let bodyText = '';
+  if (bodyNode) {
+    bodyNode.querySelectorAll('p').forEach(p => {
+      bodyText += p.text + '\n';
+    });
+  }
+  return bodyText.trim();
+};
+
+// Conversion ///////////////////////////////////////////////
+const src = readFileSync(srcPath, 'utf8');
+const domRoot = parse(src);
+
+// Extract chapters /////////////////////////////////////////
+const chapters = [
+  { id: 'I_HAVE_EATEN_OF_THE_FURNACE_OF_HADES', title: 'I Have Eaten of the Furnace of Hades' },
+  { id: 'THE_IDEALS_OF_A_SAMURAI', title: 'The Ideals of a Samurai' },
+  { id: 'THE_END_OF_THE_TRAIL', title: 'The End of the Trail' }
+];
+
+chapters.forEach(chapter => {
+  chapter.title = extractTitle(domRoot, chapter.id);
+  chapter.body = extractBody(domRoot, chapter.id);
 });
 
-// Save the SQL statements to a file
-fs.writeFileSync('./docs/generated-schema.sql', sqlStatements);
-
-console.log('SQL schema generated successfully!');
+// Output the data as SQL ///////////////////////////////////
+const fd = openSync(dstPath, 'w');
+writeFileSync(fd, sqlHeader);
+writeFileSync(fd, `('${chapters[0].title}', '${chapters[0].body}')`);
+chapters.slice(1).forEach((data) => {
+  const value = `,\n('${data.title}', '${data.body}')`;
+  writeFileSync(fd, value);
+});
+writeFileSync(fd, ';\n\n');
+closeSync(fd);
