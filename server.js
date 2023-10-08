@@ -1,10 +1,18 @@
 // Dependencies ////////////////////////////////////////////
+import 'dotenv/config'
 import express from 'express'
-import { Pool } from 'pg';
+import pkg from 'pg'
+import { Pool } from 'pkg';
 
 // Configuration ///////////////////////////////////////////
 const PORT = process.env.PORT || 5163
 const pool = new Pool({
+    connectionString: process.env.DATABASE_URL,
+    ssl: {
+        rejectUnauthorized: false
+    }
+    });
+
 // Web server setup ////////////////////////////////////////
 const app = express()
 app.use(express.static('public'))
