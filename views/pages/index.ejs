@@ -7,6 +7,7 @@
   <link id="themeStylesheet" rel="stylesheet" type="text/css" href="page.css">
 </head>
 <body>
+  <%- include('../shared/header.ejs') %>
   <header>
     <h1>Samurai Sagas</h1>
     <button id="theme-toggle" type="button">☀️</button>
@@ -40,11 +41,10 @@
         <p>Gravida cum sociis natoque penatibus et magnis. Nascetur ridiculus mus mauris vitae ultricies leo integer malesuada. Sit amet cursus sit amet dictum. Massa eget egestas purus viverra. Pharetra sit amet aliquam id diam maecenas ultricies mi. Ut sem viverra aliquet eget sit amet. Lobortis feugiat vivamus at augue eget arcu. Vitae justo eget magna fermentum iaculis eu non diam phasellus. Lacus luctus accumsan tortor posuere ac ut consequat semper. Interdum posuere lorem ipsum dolor. Lorem ipsum dolor sit amet consectetur. Nisl tincidunt eget nullam non nisi est sit amet facilisis. A diam sollicitudin tempor id eu nisl nunc.</p>
     </article>
   </main>
+  <%- include('../shared/footer.ejs') %>
   <footer>
     <p>&copy; 2023 Samurai Sagas</p>
-  </footer>
-  <!-- Include the footer 
-  <%- include('/shared/footer.ejs') %>-->
+  </footer> 
   <script src="themeToggle.js"></script>
 </body>
 </html>

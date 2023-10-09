@@ -3,7 +3,8 @@ import 'dotenv/config'
 import dotenv from 'dotenv';
 import express from 'express'
 import pkg from 'pg'
-import { Pool } from 'pkg';
+import { Pool } from 'pg';
+
 
 // Configuration ///////////////////////////////////////////
 const PORT = process.env.PORT || 5163
@@ -12,21 +13,70 @@ const pool = new Pool({
     ssl: {
         rejectUnauthorized: false
     }
-    });
+});
 
-// Web server setup ////////////////////////////////////////
-const app = express()
-app.use(express.static('public'))
+/*
+const pool = new Pool({
+    user: process.env.DB_USER,
+    host: process.env.DB_HOST,
+    database: process.env.DB_NAME,
+    password: process.env.DB_PASSWORD,
+    port: process.env.DB_PORT,
+  });
+  
 
-// Ready for browsers to connect ///////////////////////////
-const displayPort = function () {
-  console.log('Listening on ' + PORT)
-};
+require('dotenv').config();
+*/
+
+// Query functions /////////////////////////////////////////
+export const query = async function (sql, params) {
+    let client
+    let results = []
+    try {
+      client = await pool.connect()
+      const response = client.query(sql, params)
+      if (response && response.rows) {
+        results = response.rows
+      }
+    } catch (err) {
+      console.error(err)
+    }
+    if (client) client.release()
+    return results
+  }
+  
+  export const queryChapter = async function (id) {
+    const sql = `SELECT *, (SELECT COUNT(*) FROM chapters) AS total
+      FROM chapters
+      WHERE id = $1;`
+    const results = await query(sql, [id])
+    return results.length === 1 ? results[0] : []
+  }
+  
+  export const queryChapters = async function (id) {
+    const sql = 'SELECT id, title FROM chapters;'
+    const results = await query(sql)
+    return results
+  }
+
+// Configure the web server ////////////////////////////////
+  express()
+  .use(express.static('public'))
+  .use(express.json())
+  .use(express.urlencoded({ extended: true }))
+
+  .set('views', 'views')
+  .set('view engine', 'ejs')
+
+
 
 // Routes //////////////////////////////////////////////////
 app.get('/', function (req, res) {
-  res.render('pages/index')
-})
+    res.render('pages/index')
+  })
+  .get('/about', function (req, res) {
+    res.render('pages/about', { title: 'About' })
+  })
 .get('/index', async (req, res) => {
     try {
         const result = await pool.query('SELECT * FROM chapters');
@@ -50,4 +100,13 @@ app.get('/', function (req, res) {
     }
 });
 
-app.listen(PORT, displayPort);
+// Web server setup ////////////////////////////////////////
+const app = express()
+app.use(express.static('public'))
+
+// Ready for browsers to connect ///////////////////////////
+const displayPort = function () {
+  console.log('Listening on ' + PORT)
+};
+//app.listen(PORT, displayPort);
+app.listen(PORT, () => console.log(`Listening on ${PORT}`))
