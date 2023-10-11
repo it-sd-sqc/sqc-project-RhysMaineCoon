@@ -1,17 +1,14 @@
-/* Reset some default styles in browsers */
 body, h1, h2, p, ul, li, a {
     margin: 0;
     padding: 0;
   }
   
-  /* Set a background color and text color for the whole page */
   body {
     background-color: #f4f1ea;
     color: #3e3e3e;
     font-family: 'Arial', sans-serif;
   }
   
-  /* Style the header section */
   header {
     background-color: #3e3e3e;
     color: #ffffff;
@@ -20,13 +17,11 @@ body, h1, h2, p, ul, li, a {
     position: relative;
   }
   
-  /* Style the header title */
   header h1 {
     margin: 0;
     font-size: 2em;
   }
   
-  /* Style the theme toggle button */
   #theme-toggle {
     position: absolute;
     top: 10px;
@@ -38,7 +33,6 @@ body, h1, h2, p, ul, li, a {
     cursor: pointer;
   }
   
-  /* Style the navigation links */
   nav {
     background-color: #ffffff;
     text-align: center;
@@ -53,12 +47,10 @@ body, h1, h2, p, ul, li, a {
     font-weight: bold;
   }
   
-  /* Style the main content area */
   main {
     padding: 2em;
   }
   
-  /* Style the article/story section */
   .story {
     background-color: #ffffff;
     padding: 2em;
@@ -83,7 +75,6 @@ body, h1, h2, p, ul, li, a {
     line-height: 1.6em;
   }
   
-  /* Style the footer section */
   footer {
     background-color: #3e3e3e;
     color: #ffffff;
@@ -99,19 +90,12 @@ body, h1, h2, p, ul, li, a {
   }
   
 /*Dark Mode/*
-
-/* Add this Dark Mode class to your existing CSS file */
-.dark-mode {
-    background-color: #333;
-    color: #fff;
-  }
   
   /* Dark mode header styling */
   .dark-mode header {
     background-color: #2a2a2a;
   }
   
-  /* Dark mode navigation styling */
   .dark-mode nav {
     background-color: #2a2a2a;
     color: #fff;
@@ -121,12 +105,10 @@ body, h1, h2, p, ul, li, a {
     color: #fff;
   }
   
-  /* Dark mode article/story section styling */
   .dark-mode .story {
     background-color: #444;
   }
   
-  /* Dark mode footer styling */
   .dark-mode footer {
     background-color: #2a2a2a;
   }
