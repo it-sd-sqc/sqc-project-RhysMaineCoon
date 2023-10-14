@@ -14,12 +14,12 @@ file.
 ***********************************************************/
 
 // Dependencies ////////////////////////////////////////////
-import { closeSync, openSync, readFileSync, writeFileSync } from 'node:fs';
-import { parse } from 'node-html-parser';
+import { closeSync, openSync, readFileSync, writeFileSync } from 'node:fs'
+import { parse } from 'node-html-parser'
 
 // Configuration ///////////////////////////////////////////
-const srcPath = 'data/book.html';
-const dstPath = 'docs/generated-schema.sql';
+const srcPath = 'data/book.html'
+const dstPath = 'docs/generated-schema.sql'
 
 const sqlHeader = `DROP TABLE IF EXISTS chapters;
 
@@ -30,48 +30,48 @@ CREATE TABLE chapters (
 );
 
 INSERT INTO chapters (title, body) VALUES
-`;
+`
 
 // Utility functions ///////////////////////////////////////
 const extractTitle = function (root, id) {
-  const titleNode = root.querySelector(`#${id} h2 span.titlefont`);
-  return titleNode ? titleNode.text : '';
-};
+  const titleNode = root.querySelector(`#${id} h2 span.titlefont`)
+  return titleNode ? titleNode.text : ''
+}
 
 const extractBody = function (root, id) {
-  const bodyNode = root.querySelector(`#${id}`);
-  let bodyText = '';
+  const bodyNode = root.querySelector(`#${id}`)
+  let bodyText = ''
   if (bodyNode) {
     bodyNode.querySelectorAll('p').forEach(p => {
-      bodyText += p.text + '\n';
-    });
+      bodyText += p.text + '\n'
+    })
   }
-  return bodyText.trim();
-};
+  return bodyText.trim()
+}
 
 // Conversion ///////////////////////////////////////////////
-const src = readFileSync(srcPath, 'utf8');
-const domRoot = parse(src);
+const src = readFileSync(srcPath, 'utf8')
+const domRoot = parse(src)
 
 // Extract chapters /////////////////////////////////////////
 const chapters = [
   { id: 'I_HAVE_EATEN_OF_THE_FURNACE_OF_HADES', title: 'I Have Eaten of the Furnace of Hades' },
   { id: 'THE_IDEALS_OF_A_SAMURAI', title: 'The Ideals of a Samurai' },
   { id: 'THE_END_OF_THE_TRAIL', title: 'The End of the Trail' }
-];
+]
 
 chapters.forEach(chapter => {
-  chapter.title = extractTitle(domRoot, chapter.id);
-  chapter.body = extractBody(domRoot, chapter.id);
-});
+  chapter.title = extractTitle(domRoot, chapter.id)
+  chapter.body = extractBody(domRoot, chapter.id)
+})
 
 // Output the data as SQL ///////////////////////////////////
-const fd = openSync(dstPath, 'w');
-writeFileSync(fd, sqlHeader);
-writeFileSync(fd, `('${chapters[0].title}', '${chapters[0].body}')`);
+const fd = openSync(dstPath, 'w')
+writeFileSync(fd, sqlHeader)
+writeFileSync(fd, `('${chapters[0].title}', '${chapters[0].body}')`)
 chapters.slice(1).forEach((data) => {
-  const value = `,\n('${data.title}', '${data.body}')`;
-  writeFileSync(fd, value);
-});
-writeFileSync(fd, ';\n\n');
-closeSync(fd);
+  const value = `,\n('${data.title}', '${data.body}')`
+  writeFileSync(fd, value)
+})
+writeFileSync(fd, ';\n\n')
+closeSync(fd)

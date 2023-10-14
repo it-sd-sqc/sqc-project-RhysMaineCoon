@@ -9,13 +9,14 @@
   },
   "scripts": {
     "generate": "node ./tools/html-to-sql.js && psql -f ./docs/generated-schema.sql",
-    "test": "jasmine || echo \"Error: no test specified\" && exit 1" 
+    "test": "c8 jasmine && standard \"spec/**/*.js\" && ejslint \"views/**/*.ejs\" && html-validate \"public/**/*.html\" && stylelint \"**/*.css\"",
+    "start": "node server.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "html-validate": "^8.4.0",
+    "html-validate": "^8.6.0",
     "jasmine": "^5.1.0",
     "node-html-parser": "^6.1.10",
     "standard": "^17.1.0",

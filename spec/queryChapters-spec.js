@@ -15,12 +15,12 @@ describe('queryChapters()', function () {
       expect(chapter).toHaveProperty('id')
       expect(chapter).toHaveProperty('title')
     }
-  })  
+  })
   // End of implementation /////////////////////////////////
 })
 
 describe('example test', function () {
   it('should pass', function () {
-    expect(true).toBe(true);
+    expect(true).toBe(true)
   })
 })
