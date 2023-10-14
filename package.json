@@ -9,7 +9,7 @@
   },
   "scripts": {
     "generate": "node ./tools/html-to-sql.js && psql -f ./docs/generated-schema.sql",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "c8 jasmine && standard \"spec/**/*.js\" && ejslint \"views/**/*.ejs\" && html-validate \"public/**/*.html\" && stylelint \"**/*.css\""
   },
   "keywords": [],
   "author": "",
