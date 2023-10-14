@@ -31,7 +31,7 @@ export const query = async function (sql, params) {
     return results
   }
   
-  export const queryChapter = async function (id) {
+  export const getChapter = async function () {
     const sql = `SELECT *, (SELECT COUNT(*) FROM chapters) AS total
       FROM chapters
       WHERE id = $1;`
