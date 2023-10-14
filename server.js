@@ -73,8 +73,9 @@ const app = express()
 app.use(express.static('public'))
 
 // Ready for browsers to connect ///////////////////////////
-const displayPort = function () {
+/* const displayPort = function () {
   console.log('Listening on ' + PORT)
 };
+*/
 
 app.listen(PORT, () => console.log(`Listening on ${PORT}`))
