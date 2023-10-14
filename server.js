@@ -30,29 +30,43 @@ export const query = async function (sql, params) {
     if (client) client.release()
     return results
   }
-  
+  /*
   export const getChapter = async function () {
-    const sql = `SELECT *, (SELECT COUNT(*) FROM chapters) AS total
-      FROM chapters
-      WHERE id = $1;`
-    const results = await query(sql, [id])
-    return results.length === 1 ? results[0] : []
-  }
+    const data = await query('SELECT chapter_id, title, number FROM section;')
+    const table = {}
+    data.forEach((row) => {
+      if (row.number === 0) {
+        table[row.chapter_id] = {}
+      }
+      table[row.chapter_id][row.number] = row.title
+    })
   
-  export const queryChapters = async function (id) {
-    const sql = 'SELECT id, title FROM chapters;'
-    const results = await query(sql)
-    return results
+    return table
+  }
+  */
+  
+  export const getChapters = async function (id) {
+    const sql = `SELECT section.title, section.number AS sect_num, element.section_id, element.content, element.index, element.element_type_id AS type
+    FROM section RIGHT JOIN element ON section.id = element.section_id
+    WHERE section.chapter_id = ${number}
+    ORDER BY section_id ASC, index ASC;`
+    return await query(sql)
   }
 
-// Configure the web server ////////////////////////////////
+// Configure web server & Express Routes////////////////////////////////
   express()
   .use(express.static('public'))
-  .use(express.json())
-  .use(express.urlencoded({ extended: true }))
-
   .set('views', 'views')
   .set('view engine', 'ejs')
+
+  .use(express.json())
+  .use(express.urlencoded({ extended: true }))
+  .get('/', function (req, res) {
+    res.render('pages/index')
+  })
+  .get('/about', function (req, res) {
+    res.render('pages/about')
+  })
 
 // Web server setup ////////////////////////////////////////
 const app = express()
@@ -63,17 +77,4 @@ const displayPort = function () {
   console.log('Listening on ' + PORT)
 };
 
-// Express Routes/////////////////////////////////////////////////
-express()
-  .use(express.static('./public/'))
-  .set('views', 'views')
-  .set('view engine', 'ejs')
-  .get('/', function (req, res) {
-    res.render('pages/index')
-  })
-  .get('/about', function (req, res) {
-    res.render('pages/about')
-  })
-  
-//app.listen(PORT, displayPort);
 app.listen(PORT, () => console.log(`Listening on ${PORT}`))
