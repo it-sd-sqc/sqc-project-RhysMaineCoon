@@ -1,9 +1,8 @@
 // Dependencies ////////////////////////////////////////////
 import 'dotenv/config'
-import dotenv from 'dotenv';
 import express from 'express'
 import pkg from 'pg'
-import { Pool } from 'pg';
+const { Pool } = pkg
 
 
 // Configuration ///////////////////////////////////////////
@@ -14,19 +13,6 @@ const pool = new Pool({
         rejectUnauthorized: false
     }
 });
-
-/*
-const pool = new Pool({
-    user: process.env.DB_USER,
-    host: process.env.DB_HOST,
-    database: process.env.DB_NAME,
-    password: process.env.DB_PASSWORD,
-    port: process.env.DB_PORT,
-  });
-  
-
-require('dotenv').config();
-*/
 
 // Query functions /////////////////////////////////////////
 export const query = async function (sql, params) {
