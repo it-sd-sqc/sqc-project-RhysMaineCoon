@@ -110,6 +110,7 @@ body, h1, h2, p, ul, li, a {
   
   .dark-mode .story {
     background-color: #444;
+    color: #fff;
   }
   
   .dark-mode footer {
