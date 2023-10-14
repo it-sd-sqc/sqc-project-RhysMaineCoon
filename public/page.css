@@ -4,8 +4,10 @@ body, h1, h2, p, ul, li, a {
   }
   
   body {
-    background-color: #f4f1ea;
-    color: #3e3e3e;
+    background-image: url('samurai_warrior.png');
+    background-position: center center;
+    background-size:cover;
+    background-attachment: scroll;
     font-family: 'Arial', sans-serif;
   }
   
@@ -53,6 +55,7 @@ body, h1, h2, p, ul, li, a {
   
   .story {
     background-color: #ffffff;
+    opacity: 85%;
     padding: 2em;
     border-radius: 8px;
     box-shadow: 0px 3px 15px rgba(0,0,0,0.1);
