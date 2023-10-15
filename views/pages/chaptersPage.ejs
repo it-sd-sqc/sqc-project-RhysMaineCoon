@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>All Chapters</title>
+</head>
+<body>
+    <h1>All Chapters</h1>
+    <ul>
+        <% chapters.forEach(chapter => { %>
+            <li><a href="/chapter/<%= chapter.id %>"><%= chapter.title %></a></li>
+        <% }); %>
+    </ul>
+</body>
+</html>
