@@ -4,15 +4,16 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>All Chapters</title>
-  <link id="themeStylesheet" rel="stylesheet" type="text/css" href="page.css">
-  
+  <%- include('../shared/header.ejs') %>
 </head>
 <body>
-  <%- include('../shared/header.ejs') %>
   <h1>All Chapters</h1>
   <ul>
     <% chapters.forEach(chapter => { %>
-      <li><a href="/chapter/<%= chapter.id %>"><%= chapter.title %></a></li>
+      <li>
+        <h2><%= chapter.title %></h2>
+        <p><%= chapter.body %></p>
+      </li>
     <% }); %>
   </ul>
   <%- include('../shared/footer.ejs') %>

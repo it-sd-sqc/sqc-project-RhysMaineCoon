@@ -1,14 +1,16 @@
 DROP TABLE IF EXISTS chapters;
 
-CREATE TABLE chapters (
+-- Create the chapters table
+CREATE TABLE IF NOT EXISTS chapters (
   id SERIAL PRIMARY KEY,
-  title TEXT NOT NULL,
+  title VARCHAR(255) NOT NULL,
   body TEXT NOT NULL
 );
 
+-- Insert the story chapters
 INSERT INTO chapters (title, body) VALUES
-('“I HAVE EATEN OF THE FURNACE OF HADES”', 'Vol. I, Sect. IX. The “Ko-Ji-Ki”
-A very famous book in Japan is named the
+('Chapter 1: “I HAVE EATEN OF THE FURNACE OF HADES”', 
+'A very famous book in Japan is named the
 “Ko-Ji-Ki,” and the word means “A Record
 of Ancient Matters.” We thought on our second
 morning as we walked through the hills that if
@@ -412,7 +414,7 @@ dignified oration of introduction, and backed
 away from our sight with innumerable appreciations
 for the honour of being asked to be of
 service.'),
-('THE IDEALS OF A SAMURAI', 'In the morning we found great brass basins of
+('Chapter 2: THE IDEALS OF A SAMURAI', 'In the morning we found great brass basins of
 water waiting for us in the sunny iris garden.
 One of the super-errors that a foreigner can make
 in a native inn is to ask to have the basins
@@ -819,7 +821,7 @@ opponent should he lose, this young Japanese entered
 the bidding until it was his last yen which
 bought the antiquity. The dilettante does not
 bid successfully against that spirit.'),
-('THE END OF THE TRAIL', 'Whether or no the Bosen-ka inn of Kofu does
+('Chapter 3: THE END OF THE TRAIL', 'Whether or no the Bosen-ka inn of Kofu does
 possess a wide reputation for comfort, it should
 deservedly have it. O-Shio-san was the name of
 the maid. This means O-Salt-san, but we renamed
