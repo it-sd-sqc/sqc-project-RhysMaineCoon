@@ -54,44 +54,41 @@ app.get('/about', (req, res) => {
 // Route to display a single chapter by ID
 app.get('/chapter/:chapterId', async (req, res) => {
   try {
-    const { chapterId } = parseInt(req.params.chapterId);
-    const chapterData = await query('SELECT * FROM chapters WHERE id = $1', [chapterId]);
+    const { chapterId } = parseInt(req.params.chapterId)
+    const chapterData = await query('SELECT * FROM chapters WHERE id = $1', [chapterId])
 
     if (chapterData.length === 0) {
-      return res.status(404).send('Chapter not found');
+      return res.status(404).send('Chapter not found')
     }
 
-    res.render('pages/chapterPage', { chapter: chapterData[0] });
+    res.render('pages/chapterPage', { chapter: chapterData[0] })
   } catch (error) {
-    console.error(error);
-    res.status(500).send('Internal Server Error');
+    console.error(error)
+    res.status(500).send('Internal Server Error')
   }
-});
+})
 
 // Route to display all chapters
 app.get('/chapters', async (req, res) => {
   try {
-    const allChapters = await query('SELECT * FROM chapters');
-    res.render('pages/chaptersPage', { chapters: allChapters });
+    const allChapters = await query('SELECT * FROM chapters')
+    res.render('pages/chaptersPage', { chapters: allChapters })
   } catch (error) {
-    console.error(error);
-    res.status(500).send('Internal Server Error');
+    console.error(error)
+    res.status(500).send('Internal Server Error')
   }
-});
+})
 
 // Route to display all chapters on a single page
 app.get('/all-chapters', async (req, res) => {
   try {
-    const allChapters = await query('SELECT * FROM chapters');
-    res.render('pages/allChaptersPage', { chapters: allChapters });
+    const allChapters = await query('SELECT * FROM chapters')
+    res.render('pages/allChaptersPage', { chapters: allChapters })
   } catch (error) {
-    console.error(error);
-    res.status(500).send('Internal Server Error');
+    console.error(error)
+    res.status(500).send('Internal Server Error')
   }
-});
-
-
-
+})
 
 // Start Server ///////////////////////////////////////////
 app.listen(PORT, () => {
