@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>All Chapters</title>
+  <%- include('../shared/header.ejs') %>
+</head>
+<body>
+  <h1>All Chapters</h1>
+  <ul>
+    <% chapters.forEach(chapter => { %>
+      <li>
+        <h2><%= chapter.title %></h2>
+        <p><%= chapter.body %></p>
+      </li>
+    <% }); %>
+  </ul>
+  <%- include('../shared/footer.ejs') %>
+</body>
+</html>
